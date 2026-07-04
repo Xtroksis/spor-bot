@@ -1,72 +1,559 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Поспорим на Stars</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
+            background: #0b0f1a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
-            background-color: #0a0a0a;
-            color: white;
+            color: #fff;
         }
-        button {
-            background-color: #0088cc;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            font-size: 18px;
-            cursor: pointer;
-            margin-top: 15px;
+        .container {
+            max-width: 420px;
+            width: 100%;
+            background: #141b2b;
+            border-radius: 24px;
+            padding: 24px 20px 32px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+            border: 1px solid #1e2a3a;
         }
-        input {
-            padding: 12px;
-            width: 80%;
-            margin: 8px 0;
-            border-radius: 10px;
-            border: none;
+        .app-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 28px;
         }
-        #status {
-            margin-top: 20px;
+        .app-header .icon {
+            font-size: 32px;
+        }
+        .app-header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f0b429, #f7931e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .app-header .badge {
+            margin-left: auto;
+            background: #2a3b5a;
+            font-size: 11px;
+            padding: 4px 12px;
+            border-radius: 40px;
+            color: #8ea4c9;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #8ea4c9;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 14px 16px;
+            background: #0e1625;
+            border: 1px solid #1e2a3a;
+            border-radius: 14px;
             font-size: 16px;
-            color: #aaa;
+            color: #fff;
+            outline: none;
+            transition: border 0.2s;
         }
-        .hint {
-            font-size: 14px;
-            color: #666;
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #f7931e;
+        }
+        .form-group input::placeholder {
+            color: #4a5b77;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #f7931e, #f0b429);
+            border: none;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #0b0f1a;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 6px;
+            box-shadow: 0 4px 12px rgba(247, 147, 30, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(247, 147, 30, 0.4);
+        }
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 1px solid #2a3b5a;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #8ea4c9;
+            cursor: pointer;
+            transition: all 0.2s;
             margin-top: 10px;
+        }
+        .btn-secondary:hover {
+            background: #1e2a3a;
+            border-color: #f7931e;
+            color: #fff;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #4caf50, #2e7d32);
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336, #c62828);
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+        }
+        .bet-preview {
+            background: #0e1625;
+            border-radius: 14px;
+            padding: 16px;
+            margin: 20px 0 16px;
+            border: 1px solid #1e2a3a;
+        }
+        .bet-preview .row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            padding: 6px 0;
+            color: #8ea4c9;
+        }
+        .bet-preview .row .value {
+            color: #fff;
+            font-weight: 500;
+        }
+        .status-box {
+            background: #0e1625;
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 18px;
+            border-left: 4px solid #f7931e;
+            font-size: 14px;
+            color: #b0c7e7;
+            display: none;
+        }
+        .status-box.show {
+            display: block;
+        }
+        .status-box .highlight {
+            color: #f7931e;
+            font-weight: 600;
+        }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e2a3a;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            border: 1px solid #2a3b5a;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            z-index: 999;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .link-box {
+            background: #0e1625;
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px dashed #2a3b5a;
+        }
+        .link-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #b0c7e7;
+            font-size: 14px;
+            outline: none;
+            padding: 4px 0;
+        }
+        .link-box button {
+            background: #2a3b5a;
+            border: none;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .link-box button:hover {
+            background: #3a4b6a;
+        }
+        .footer-tip {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #4a5b77;
+            text-align: center;
+        }
+        .timer {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f7931e;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .timer.warning {
+            color: #ff5722;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .balance {
+            font-size: 14px;
+            color: #8ea4c9;
+            text-align: center;
+            margin: 6px 0 18px;
+        }
+        .balance span {
+            color: #fff;
+            font-weight: 700;
         }
     </style>
 </head>
 <body>
 
-    <h1>🤙 Поспорим</h1>
-    <p>Создай спор и делись ссылкой с другом</p>
+<div class="container" id="app">
+    <div class="app-header">
+        <span class="icon">🤙</span>
+        <h1>Поспорим</h1>
+        <span class="badge">⚡ Stars</span>
+    </div>
 
-    <input type="text" id="betTitle" placeholder="О чём спор? (Кто выиграет этот бой?)">
-    <br>
-    <input type="number" id="betAmount" placeholder="Количество Stars" value="10">
-    <br>
-    <button id="createBetBtn">Создать спор</button>
-    <div id="status"></div>
-    <div class="hint">Ссылка для друга появится после создания</div>
+    <div class="balance" id="balanceDisplay">Баланс: <span id="userBalance">50</span> Stars</div>
 
-    <script>
-        document.getElementById('createBetBtn').onclick = function() {
-            const title = document.getElementById('betTitle').value;
-            const amount = document.getElementById('betAmount').value;
+    <div id="createForm">
+        <div class="form-group">
+            <label>О чём спор?</label>
+            <input type="text" id="betTitle" placeholder="Кто выиграет этот бой?" value="Спартак выиграет?" />
+        </div>
 
-            if (!title) {
-                document.getElementById('status').innerHTML = '⚠️ Напиши, о чём спор!';
+        <div class="form-group">
+            <label>Сумма ставки (Stars)</label>
+            <input type="number" id="betAmount" value="10" min="1" step="1" />
+        </div>
+
+        <div class="form-group">
+            <label>Участники (через запятую)</label>
+            <input type="text" id="betOptions" placeholder="Игрок 1, Игрок 2" value="Алекс, Макс" />
+        </div>
+
+        <div class="form-group">
+            <label>Гарант (Telegram username, опционально)</label>
+            <input type="text" id="betGuarantor" placeholder="@username" />
+        </div>
+
+        <div class="form-group">
+            <label>Время на спор (минуты)</label>
+            <input type="number" id="betDuration" value="5" min="1" step="1" />
+        </div>
+
+        <button class="btn-primary" id="createBetBtn">🔥 Создать спор</button>
+    </div>
+
+    <div id="betPreview" class="bet-preview hidden">
+        <div class="row"><span>Спор</span><span class="value" id="previewTitle">—</span></div>
+        <div class="row"><span>Ставка</span><span class="value" id="previewAmount">0 Stars</span></div>
+        <div class="row"><span>Участники</span><span class="value" id="previewPlayers">—</span></div>
+        <div class="row"><span>Гарант</span><span class="value" id="previewGuarantor">Не указан</span></div>
+        <div class="row"><span>Осталось времени</span><span class="value" id="previewTimer">—</span></div>
+        <div class="row"><span>Статус</span><span class="value" id="previewStatus">⏳ Ожидает</span></div>
+    </div>
+
+    <div id="linkArea" class="hidden">
+        <div class="link-box">
+            <input type="text" id="shareLink" readonly />
+            <button id="copyLinkBtn">📋 Копировать</button>
+        </div>
+        <button class="btn-secondary" id="acceptBetBtn">✅ Принять спор</button>
+        <button class="btn-success" id="winBtn1">🏆 Победил Участник 1</button>
+        <button class="btn-success" id="winBtn2">🏆 Победил Участник 2</button>
+        <button class="btn-danger" id="cancelBetBtn">❌ Отменить спор</button>
+    </div>
+
+    <div id="statusBox" class="status-box"></div>
+
+    <div class="footer-tip">Создай спор и делись ссылкой с другом</div>
+</div>
+
+<div id="toast" class="toast">Сообщение</div>
+
+<script>
+    let mockBalance = 50;
+    let currentBet = null;
+    let timerInterval = null;
+
+    const elements = {
+        title: document.getElementById('betTitle'),
+        amount: document.getElementById('betAmount'),
+        options: document.getElementById('betOptions'),
+        guarantor: document.getElementById('betGuarantor'),
+        duration: document.getElementById('betDuration'),
+        createBtn: document.getElementById('createBetBtn'),
+        preview: document.getElementById('betPreview'),
+        previewTitle: document.getElementById('previewTitle'),
+        previewAmount: document.getElementById('previewAmount'),
+        previewPlayers: document.getElementById('previewPlayers'),
+        previewGuarantor: document.getElementById('previewGuarantor'),
+        previewTimer: document.getElementById('previewTimer'),
+        previewStatus: document.getElementById('previewStatus'),
+        linkArea: document.getElementById('linkArea'),
+        shareLink: document.getElementById('shareLink'),
+        copyBtn: document.getElementById('copyLinkBtn'),
+        acceptBtn: document.getElementById('acceptBetBtn'),
+        winBtn1: document.getElementById('winBtn1'),
+        winBtn2: document.getElementById('winBtn2'),
+        cancelBtn: document.getElementById('cancelBetBtn'),
+        statusBox: document.getElementById('statusBox'),
+        balanceDisplay: document.getElementById('userBalance'),
+        toast: document.getElementById('toast'),
+        createForm: document.getElementById('createForm'),
+    };
+
+    function updateBalance() {
+        elements.balanceDisplay.textContent = mockBalance;
+    }
+    updateBalance();
+
+    function showToast(msg) {
+        const t = elements.toast;
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._hide);
+        t._hide = setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    function showStatus(msg, type = 'info') {
+        const box = elements.statusBox;
+        box.innerHTML = msg;
+        box.className = 'status-box show';
+        const colors = { success: '#4caf50', error: '#f44336', info: '#f7931e' };
+        box.style.borderLeftColor = colors[type] || colors.info;
+    }
+
+    function generateBetId() {
+        return 'bet_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
+    }
+
+    function renderBet(bet) {
+        elements.previewTitle.textContent = bet.title;
+        elements.previewAmount.textContent = bet.amount + ' Stars';
+        elements.previewPlayers.textContent = bet.options.join(' vs ');
+        elements.previewGuarantor.textContent = bet.guarantor || 'Не указан';
+        elements.previewStatus.textContent = bet.status === 'waiting' ? '⏳ Ожидает' : '⚔️ Активен';
+        elements.preview.classList.remove('hidden');
+        elements.linkArea.classList.remove('hidden');
+        elements.shareLink.value = bet.shareLink;
+        elements.createForm.classList.add('hidden');
+        if (bet.status === 'active') startTimer(bet);
+    }
+
+    function startTimer(bet) {
+        if (timerInterval) clearInterval(timerInterval);
+        let remaining = bet.duration * 60;
+        elements.previewTimer.textContent = formatTime(remaining);
+        timerInterval = setInterval(() => {
+            remaining--;
+            if (remaining <= 0) {
+                clearInterval(timerInterval);
+                elements.previewTimer.textContent = '⏰ Время вышло!';
+                showStatus('⏰ Время на спор истекло! Stars возвращаются.', 'error');
+                mockBalance += bet.amount * 2;
+                updateBalance();
+                bet.status = 'finished';
+                elements.previewStatus.textContent = '⏰ Завершён';
+                elements.acceptBtn.disabled = true;
+                elements.winBtn1.disabled = true;
+                elements.winBtn2.disabled = true;
+                elements.cancelBtn.disabled = true;
+                showToast('⏰ Время вышло! Stars возвращены.');
                 return;
             }
+            elements.previewTimer.textContent = formatTime(remaining);
+        }, 1000);
+    }
 
-            document.getElementById('status').innerHTML = '✅ Спор создан! Отправь другу ссылку: <br><b>t.me/starsporWin_bot?start=test</b>';
+    function formatTime(seconds) {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function finishBet(winner) {
+        if (!currentBet || currentBet.status === 'finished') return;
+        clearInterval(timerInterval);
+        const winAmount = currentBet.amount * 2;
+        mockBalance += winAmount;
+        updateBalance();
+        currentBet.status = 'finished';
+        elements.previewStatus.textContent = '🏆 Завершён';
+        elements.previewTimer.textContent = `🏆 Победитель: ${winner}`;
+        elements.winBtn1.disabled = true;
+        elements.winBtn2.disabled = true;
+        elements.acceptBtn.disabled = true;
+        elements.cancelBtn.disabled = true;
+        showStatus(`🏆 Победитель: <span class="highlight">${winner}</span>! Выигрыш: ${winAmount} Stars`, 'success');
+        showToast(`🏆 ${winner} выиграл ${winAmount} Stars!`);
+    }
+
+    // Создание спора
+    elements.createBtn.addEventListener('click', function() {
+        const title = elements.title.value.trim();
+        const amount = parseInt(elements.amount.value);
+        const optionsRaw = elements.options.value.trim();
+        const options = optionsRaw.split(',').map(s => s.trim()).filter(Boolean);
+        const guarantor = elements.guarantor.value.trim() || null;
+        const duration = parseInt(elements.duration.value) || 5;
+
+        if (!title || amount < 1 || options.length < 2) {
+            showToast('⚠️ Заполни все поля корректно.');
+            return;
+        }
+        if (amount > mockBalance) {
+            showToast('⚠️ Недостаточно Stars!');
+            return;
+        }
+
+        mockBalance -= amount;
+        updateBalance();
+
+        const betId = generateBetId();
+        currentBet = {
+            id: betId,
+            title,
+            amount,
+            options,
+            guarantor,
+            duration,
+            status: 'waiting',
+            creator: 'Вы',
+            shareLink: `https://t.me/starsporWin_bot/spor?start=${betId}`
         };
-    </script>
+        renderBet(currentBet);
+        showToast('✅ Спор создан!');
+    });
 
+    // Копирование ссылки
+    elements.copyBtn.addEventListener('click', function() {
+        const input = elements.shareLink;
+        input.select();
+        navigator.clipboard?.writeText(input.value).then(() => showToast('📋 Ссылка скопирована!'));
+    });
+
+    // Принятие спора
+    elements.acceptBtn.addEventListener('click', function() {
+        if (!currentBet || currentBet.status !== 'waiting') return;
+        if (currentBet.amount > mockBalance) {
+            showToast('⚠️ Недостаточно Stars для принятия!');
+            return;
+        }
+        mockBalance -= currentBet.amount;
+        updateBalance();
+        currentBet.status = 'active';
+        currentBet.participant2 = 'Друг';
+        elements.previewStatus.textContent = '⚔️ Идёт';
+        elements.acceptBtn.disabled = true;
+        showStatus(`🔥 Спор принят! Банк: ${currentBet.amount * 2} Stars.`, 'success');
+        showToast('✅ Спор принят!');
+        startTimer(currentBet);
+    });
+
+    // Кнопки "Победил Участник 1/2"
+    elements.winBtn1.addEventListener('click', () => {
+        if (currentBet && currentBet.status === 'active') {
+            const winner = currentBet.options[0];
+            finishBet(winner);
+        }
+    });
+    elements.winBtn2.addEventListener('click', () => {
+        if (currentBet && currentBet.status === 'active') {
+            const winner = currentBet.options[1];
+            finishBet(winner);
+        }
+    });
+
+    // Отмена спора (возврат Stars)
+    elements.cancelBtn.addEventListener('click', function() {
+        if (!currentBet || currentBet.status === 'finished') return;
+        clearInterval(timerInterval);
+        mockBalance += currentBet.amount * 2;
+        updateBalance();
+        currentBet.status = 'finished';
+        elements.previewStatus.textContent = '❌ Отменён';
+        elements.previewTimer.textContent = '❌ Спор отменён';
+        elements.acceptBtn.disabled = true;
+        elements.winBtn1.disabled = true;
+        elements.winBtn2.disabled = true;
+        elements.cancelBtn.disabled = true;
+        showStatus('❌ Спор отменён. Stars возвращены.', 'error');
+        showToast('❌ Спор отменён.');
+    });
+</script>
 </body>
 </html>

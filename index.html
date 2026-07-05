@@ -286,7 +286,7 @@
         <span class="badge">⚡ Stars</span>
     </div>
 
-    <div class="balance" id="balanceDisplay">Баланс: <span id="userBalance">0</span> Stars</div>
+    <div class="balance" id="balanceDisplay">Баланс: <span id="userBalance">100</span> Stars</div>
 
     <div id="createForm">
         <div class="form-group">
@@ -462,6 +462,37 @@
         showToast(`🏆 ${winner} выиграл ${winAmount} Stars!`);
     }
 
+    // ===== ОБРАБОТКА ССЫЛКИ ДЛЯ ДРУГА =====
+    const urlParams = new URLSearchParams(window.location.search);
+    const betIdFromUrl = urlParams.get('start');
+
+    if (betIdFromUrl) {
+        document.getElementById('createForm').classList.add('hidden');
+        
+        // Демо-данные для принятия спора
+        currentBet = {
+            id: betIdFromUrl,
+            title: 'Кто быстрее съест?',
+            amount: 10,
+            options: ['Леха', 'Вася'],
+            guarantor: null,
+            duration: 5,
+            status: 'waiting',
+            creator: 'Создатель',
+            shareLink: window.location.href
+        };
+
+        renderBet(currentBet);
+        document.getElementById('acceptBetBtn').textContent = '✅ Принять спор';
+        document.getElementById('acceptBetBtn').disabled = false;
+        
+        // Прячем кнопки "Победил" у друга
+        document.getElementById('winBtn1').style.display = 'none';
+        document.getElementById('winBtn2').style.display = 'none';
+        
+        showStatus('📩 Вас вызвали на спор! Примите вызов.', 'info');
+    }
+
     // Создание спора
     elements.createBtn.addEventListener('click', function() {
         const title = elements.title.value.trim();
@@ -519,6 +550,11 @@
         currentBet.participant2 = 'Друг';
         elements.previewStatus.textContent = '⚔️ Идёт';
         elements.acceptBtn.disabled = true;
+        
+        // Показываем кнопки "Победил" для обоих участников после принятия
+        document.getElementById('winBtn1').style.display = 'block';
+        document.getElementById('winBtn2').style.display = 'block';
+        
         showStatus(`🔥 Спор принят! Банк: ${currentBet.amount * 2} Stars.`, 'success');
         showToast('✅ Спор принят!');
         startTimer(currentBet);

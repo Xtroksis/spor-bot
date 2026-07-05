@@ -268,6 +268,50 @@
         .btn-success.hidden-btn {
             display: none !important;
         }
+        .link-box-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .link-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #0e1625;
+            border-radius: 14px;
+            padding: 8px 12px;
+            border: 1px dashed #2a3b5a;
+        }
+        .link-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #b0c7e7;
+            font-size: 14px;
+            outline: none;
+            padding: 4px 0;
+        }
+        .link-box button {
+            background: #2a3b5a;
+            border: none;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .link-box button:hover {
+            background: #3a4b6a;
+        }
+        .label-small {
+            font-size: 11px;
+            color: #6a7b99;
+            margin-bottom: 2px;
+            margin-top: 6px;
+        }
     </style>
 </head>
 <body>
@@ -320,9 +364,17 @@
     </div>
 
     <div id="linkArea" class="hidden">
-        <div class="link-box">
-            <input type="text" id="shareLink" readonly />
-            <button id="copyLinkBtn">📋 Копировать</button>
+        <div class="link-box-container" id="linkBoxContainer">
+            <div class="label-small">🔗 Ссылка для участников:</div>
+            <div class="link-box" id="linkBox">
+                <input type="text" id="shareLink" readonly />
+                <button id="copyLinkBtn">📋 Копировать</button>
+            </div>
+            <div class="label-small" id="guarantorLabel" style="display:none;">🛡️ Ссылка для гаранта:</div>
+            <div class="link-box" id="guarantorLinkBox" style="display:none;">
+                <input type="text" id="guarantorLink" readonly />
+                <button id="copyGuarantorLinkBtn">📋 Копировать</button>
+            </div>
         </div>
         <button class="btn-secondary" id="acceptBetBtn">✅ Принять спор</button>
         <button class="btn-success hidden-btn" id="winBtn1">🏆 Победил Участник 1</button>
@@ -363,6 +415,10 @@
         linkArea: document.getElementById('linkArea'),
         shareLink: document.getElementById('shareLink'),
         copyBtn: document.getElementById('copyLinkBtn'),
+        guarantorLink: document.getElementById('guarantorLink'),
+        copyGuarantorLinkBtn: document.getElementById('copyGuarantorLinkBtn'),
+        guarantorLinkBox: document.getElementById('guarantorLinkBox'),
+        guarantorLabel: document.getElementById('guarantorLabel'),
         acceptBetBtn: document.getElementById('acceptBetBtn'),
         winBtn1: document.getElementById('winBtn1'),
         winBtn2: document.getElementById('winBtn2'),
@@ -412,8 +468,25 @@
         elements.previewStatus.textContent = bet.status === 'waiting' ? '⏳ Ожидает' : '⚔️ Активен';
         elements.preview.classList.remove('hidden');
         elements.linkArea.classList.remove('hidden');
+
+        // Показываем ссылки
         elements.shareLink.value = bet.shareLink;
+        if (bet.guarantor) {
+            const guarantorLink = `https://xtroksis.github.io/spor-bot/?start=${bet.id}&role=guarantor`;
+            elements.guarantorLink.value = guarantorLink;
+            elements.guarantorLinkBox.style.display = 'flex';
+            elements.guarantorLabel.style.display = 'block';
+        } else {
+            elements.guarantorLinkBox.style.display = 'none';
+            elements.guarantorLabel.style.display = 'none';
+        }
+
         elements.createForm.classList.add('hidden');
+
+        // Определяем роль пользователя
+        const urlParams = new URLSearchParams(window.location.search);
+        const role = urlParams.get('role');
+        const isGuarantor = role === 'guarantor';
 
         if (bet.status === 'waiting') {
             elements.acceptBetBtn.style.display = 'block';
@@ -421,25 +494,28 @@
             elements.winBtn1.classList.add('hidden-btn');
             elements.winBtn2.classList.add('hidden-btn');
             elements.cancelBtn.style.display = 'block';
+            if (isGuarantor) {
+                elements.acceptBetBtn.style.display = 'none';
+                showStatus('🛡️ Вы гарант. Дождитесь, пока участники примут спор.', 'info');
+            }
         } else if (bet.status === 'active') {
             elements.acceptBetBtn.style.display = 'none';
+            elements.cancelBtn.style.display = 'block';
 
-            // Показываем кнопки "Победил" только если:
-            // 1. Нет гаранта — показываем всем участникам
-            // 2. Есть гарант — показываем только гаранту
-            const isGuarantor = bet.guarantor && bet.guarantor === 'текущий_пользователь';
-            const isCreator = bet.creator === 'Вы';
-            const isParticipant = bet.participant2 === 'Друг' || isCreator;
+            // Кто может завершить спор?
+            const canFinish = isGuarantor || (!bet.guarantor && (bet.creator === 'Вы' || bet.participant2 === 'Друг'));
 
-            if (isGuarantor || (!bet.guarantor && isParticipant)) {
+            if (canFinish) {
                 elements.winBtn1.classList.remove('hidden-btn');
                 elements.winBtn2.classList.remove('hidden-btn');
+                if (isGuarantor) {
+                    showStatus('🛡️ Вы гарант. Выберите победителя!', 'success');
+                }
             } else {
                 elements.winBtn1.classList.add('hidden-btn');
                 elements.winBtn2.classList.add('hidden-btn');
                 showStatus('⏳ Ожидаем решения гаранта...', 'info');
             }
-            elements.cancelBtn.style.display = 'block';
         } else if (bet.status === 'finished') {
             elements.acceptBetBtn.style.display = 'none';
             elements.winBtn1.classList.add('hidden-btn');
@@ -580,11 +656,17 @@
         });
     });
 
-    // ===== КОПИРОВАНИЕ ССЫЛКИ =====
+    // ===== КОПИРОВАНИЕ ССЫЛОК =====
     elements.copyBtn.addEventListener('click', function() {
         const input = elements.shareLink;
         input.select();
         navigator.clipboard?.writeText(input.value).then(() => showToast('📋 Ссылка скопирована!'));
+    });
+
+    elements.copyGuarantorLinkBtn.addEventListener('click', function() {
+        const input = elements.guarantorLink;
+        input.select();
+        navigator.clipboard?.writeText(input.value).then(() => showToast('📋 Ссылка гаранта скопирована!'));
     });
 
     // ===== ПРИНЯТИЕ СПОРА =====
@@ -608,9 +690,13 @@
             currentBet.participant2 = 'Друг';
             elements.previewStatus.textContent = '⚔️ Идёт';
             elements.acceptBetBtn.style.display = 'none';
-            // Показываем кнопки для участников
-            elements.winBtn1.classList.remove('hidden-btn');
-            elements.winBtn2.classList.remove('hidden-btn');
+            // Показываем кнопки для участников, если нет гаранта
+            const urlParams = new URLSearchParams(window.location.search);
+            const role = urlParams.get('role');
+            if (!currentBet.guarantor || role === 'guarantor') {
+                elements.winBtn1.classList.remove('hidden-btn');
+                elements.winBtn2.classList.remove('hidden-btn');
+            }
             showStatus(`🔥 Спор принят! Банк: ${currentBet.amount * 2} Stars.`, 'success');
             showToast('✅ Спор принят!');
             startTimer(currentBet);

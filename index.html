@@ -286,7 +286,7 @@
         <span class="badge">⚡ Stars</span>
     </div>
 
-    <div class="balance" id="balanceDisplay">Баланс: <span id="userBalance">50</span> Stars</div>
+    <div class="balance" id="balanceDisplay">Баланс: <span id="userBalance">0</span> Stars</div>
 
     <div id="createForm">
         <div class="form-group">
@@ -296,22 +296,22 @@
 
         <div class="form-group">
             <label>Сумма ставки (Stars)</label>
-            <input type="number" id="betAmount" value="10" min="1" step="1" />
+            <input type="number" id="betAmount" placeholder="10" min="1" step="1" />
         </div>
 
         <div class="form-group">
-            <label>Участники (через запятую)</label>
-            <input type="text" id="betOptions" placeholder="Игрок 1, Игрок 2" value="Алекс, Макс" />
+            <label>Участники</label>
+            <input type="text" id="betOptions" placeholder="Игрок 1, Игрок 2" />
         </div>
 
         <div class="form-group">
-            <label>Гарант (Telegram username, опционально)</label>
+            <label>Гарант (Telegram username)</label>
             <input type="text" id="betGuarantor" placeholder="@username" />
         </div>
 
         <div class="form-group">
             <label>Время на спор (минуты)</label>
-            <input type="number" id="betDuration" value="5" min="1" step="1" />
+            <input type="number" id="betDuration" placeholder="5" min="1" step="1" />
         </div>
 
         <button class="btn-primary" id="createBetBtn">🔥 Создать спор</button>

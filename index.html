@@ -5,280 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Поспорим на Stars</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-        body {
-            background: #0b0f1a;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            color: #fff;
-        }
-        .container {
-            max-width: 420px;
-            width: 100%;
-            background: #141b2b;
-            border-radius: 24px;
-            padding: 24px 20px 32px;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-            border: 1px solid #1e2a3a;
-        }
-        .app-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 28px;
-        }
-        .app-header .icon {
-            font-size: 32px;
-        }
-        .app-header h1 {
-            font-size: 22px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #f0b429, #f7931e);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .app-header .badge {
-            margin-left: auto;
-            background: #2a3b5a;
-            font-size: 11px;
-            padding: 4px 12px;
-            border-radius: 40px;
-            color: #8ea4c9;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-        }
-        .form-group {
-            margin-bottom: 18px;
-        }
-        .form-group label {
-            font-size: 13px;
-            font-weight: 500;
-            color: #8ea4c9;
-            display: block;
-            margin-bottom: 6px;
-        }
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 14px 16px;
-            background: #0e1625;
-            border: 1px solid #1e2a3a;
-            border-radius: 14px;
-            font-size: 16px;
-            color: #fff;
-            outline: none;
-            transition: border 0.2s;
-        }
-        .form-group input:focus,
-        .form-group select:focus {
-            border-color: #f7931e;
-        }
-        .form-group input::placeholder {
-            color: #4a5b77;
-        }
-        .btn-primary {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #f7931e, #f0b429);
-            border: none;
-            border-radius: 14px;
-            font-size: 18px;
-            font-weight: 700;
-            color: #0b0f1a;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 6px;
-            box-shadow: 0 4px 12px rgba(247, 147, 30, 0.3);
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(247, 147, 30, 0.4);
-        }
-        .btn-primary:active {
-            transform: scale(0.97);
-        }
-        .btn-secondary {
-            width: 100%;
-            padding: 14px;
-            background: transparent;
-            border: 1px solid #2a3b5a;
-            border-radius: 14px;
-            font-size: 16px;
-            font-weight: 600;
-            color: #8ea4c9;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 10px;
-        }
-        .btn-secondary:hover {
-            background: #1e2a3a;
-            border-color: #f7931e;
-            color: #fff;
-        }
-        .btn-success {
-            background: linear-gradient(135deg, #4caf50, #2e7d32);
-            border: none;
-            border-radius: 14px;
-            font-size: 16px;
-            font-weight: 700;
-            color: #fff;
-            padding: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            width: 100%;
-            margin-top: 10px;
-        }
-        .btn-success:hover {
-            transform: translateY(-2px);
-        }
-        .btn-danger {
-            background: linear-gradient(135deg, #f44336, #c62828);
-            border: none;
-            border-radius: 14px;
-            font-size: 16px;
-            font-weight: 700;
-            color: #fff;
-            padding: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            width: 100%;
-            margin-top: 10px;
-        }
-        .btn-danger:hover {
-            transform: translateY(-2px);
-        }
-        .bet-preview {
-            background: #0e1625;
-            border-radius: 14px;
-            padding: 16px;
-            margin: 20px 0 16px;
-            border: 1px solid #1e2a3a;
-        }
-        .bet-preview .row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            padding: 6px 0;
-            color: #8ea4c9;
-        }
-        .bet-preview .row .value {
-            color: #fff;
-            font-weight: 500;
-        }
-        .status-box {
-            background: #0e1625;
-            border-radius: 14px;
-            padding: 16px;
-            margin-top: 18px;
-            border-left: 4px solid #f7931e;
-            font-size: 14px;
-            color: #b0c7e7;
-            display: none;
-        }
-        .status-box.show {
-            display: block;
-        }
-        .status-box .highlight {
-            color: #f7931e;
-            font-weight: 600;
-        }
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1e2a3a;
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 40px;
-            font-size: 14px;
-            font-weight: 500;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-            border: 1px solid #2a3b5a;
-            opacity: 0;
-            transition: opacity 0.3s, transform 0.3s;
-            pointer-events: none;
-            z-index: 999;
-        }
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-        .footer-tip {
-            margin-top: 20px;
-            font-size: 12px;
-            color: #4a5b77;
-            text-align: center;
-        }
-        .hidden {
-            display: none !important;
-        }
-        .balance {
-            font-size: 14px;
-            color: #8ea4c9;
-            text-align: center;
-            margin: 6px 0 18px;
-        }
-        .balance span {
-            color: #fff;
-            font-weight: 700;
-        }
-        .btn-success.hidden-btn {
-            display: none !important;
-        }
-        .link-box-container {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 12px;
-        }
-        .link-box {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #0e1625;
-            border-radius: 14px;
-            padding: 8px 12px;
-            border: 1px dashed #2a3b5a;
-        }
-        .link-box input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: #b0c7e7;
-            font-size: 14px;
-            outline: none;
-            padding: 4px 0;
-        }
-        .link-box button {
-            background: #2a3b5a;
-            border: none;
-            color: #fff;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-        .link-box button:hover {
-            background: #3a4b6a;
-        }
-        .label-small {
-            font-size: 11px;
-            color: #6a7b99;
-            margin-bottom: 2px;
-            margin-top: 6px;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #0b0f1a; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; color: #fff; }
+        .container { max-width: 420px; width: 100%; background: #141b2b; border-radius: 24px; padding: 24px 20px 32px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6); border: 1px solid #1e2a3a; }
+        .app-header { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+        .app-header .icon { font-size: 32px; }
+        .app-header h1 { font-size: 22px; font-weight: 700; background: linear-gradient(135deg, #f0b429, #f7931e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .app-header .badge { margin-left: auto; background: #2a3b5a; font-size: 11px; padding: 4px 12px; border-radius: 40px; color: #8ea4c9; font-weight: 500; letter-spacing: 0.3px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { font-size: 13px; font-weight: 500; color: #8ea4c9; display: block; margin-bottom: 6px; }
+        .form-group input, .form-group select { width: 100%; padding: 14px 16px; background: #0e1625; border: 1px solid #1e2a3a; border-radius: 14px; font-size: 16px; color: #fff; outline: none; transition: border 0.2s; }
+        .form-group input:focus, .form-group select:focus { border-color: #f7931e; }
+        .form-group input::placeholder { color: #4a5b77; }
+        .btn-primary { width: 100%; padding: 16px; background: linear-gradient(135deg, #f7931e, #f0b429); border: none; border-radius: 14px; font-size: 18px; font-weight: 700; color: #0b0f1a; cursor: pointer; transition: all 0.2s; margin-top: 6px; box-shadow: 0 4px 12px rgba(247, 147, 30, 0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(247, 147, 30, 0.4); }
+        .btn-primary:active { transform: scale(0.97); }
+        .btn-secondary { width: 100%; padding: 14px; background: transparent; border: 1px solid #2a3b5a; border-radius: 14px; font-size: 16px; font-weight: 600; color: #8ea4c9; cursor: pointer; transition: all 0.2s; margin-top: 10px; }
+        .btn-secondary:hover { background: #1e2a3a; border-color: #f7931e; color: #fff; }
+        .btn-success { background: linear-gradient(135deg, #4caf50, #2e7d32); border: none; border-radius: 14px; font-size: 16px; font-weight: 700; color: #fff; padding: 14px; cursor: pointer; transition: all 0.2s; width: 100%; margin-top: 10px; }
+        .btn-success:hover { transform: translateY(-2px); }
+        .btn-danger { background: linear-gradient(135deg, #f44336, #c62828); border: none; border-radius: 14px; font-size: 16px; font-weight: 700; color: #fff; padding: 14px; cursor: pointer; transition: all 0.2s; width: 100%; margin-top: 10px; }
+        .btn-danger:hover { transform: translateY(-2px); }
+        .bet-preview { background: #0e1625; border-radius: 14px; padding: 16px; margin: 20px 0 16px; border: 1px solid #1e2a3a; }
+        .bet-preview .row { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; color: #8ea4c9; }
+        .bet-preview .row .value { color: #fff; font-weight: 500; }
+        .status-box { background: #0e1625; border-radius: 14px; padding: 16px; margin-top: 18px; border-left: 4px solid #f7931e; font-size: 14px; color: #b0c7e7; display: none; }
+        .status-box.show { display: block; }
+        .status-box .highlight { color: #f7931e; font-weight: 600; }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e2a3a; color: #fff; padding: 12px 24px; border-radius: 40px; font-size: 14px; font-weight: 500; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); border: 1px solid #2a3b5a; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; z-index: 999; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .footer-tip { margin-top: 20px; font-size: 12px; color: #4a5b77; text-align: center; }
+        .hidden { display: none !important; }
+        .balance { font-size: 14px; color: #8ea4c9; text-align: center; margin: 6px 0 18px; }
+        .balance span { color: #fff; font-weight: 700; }
+        .btn-success.hidden-btn { display: none !important; }
+        .link-box-container { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+        .link-box { display: flex; align-items: center; gap: 10px; background: #0e1625; border-radius: 14px; padding: 8px 12px; border: 1px dashed #2a3b5a; }
+        .link-box input { flex: 1; background: transparent; border: none; color: #b0c7e7; font-size: 14px; outline: none; padding: 4px 0; }
+        .link-box button { background: #2a3b5a; border: none; color: #fff; padding: 6px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500; transition: background 0.2s; }
+        .link-box button:hover { background: #3a4b6a; }
+        .label-small { font-size: 11px; color: #6a7b99; margin-bottom: 2px; margin-top: 6px; }
     </style>
 </head>
 <body>
@@ -293,31 +59,11 @@
     <div class="balance" id="balanceDisplay">Баланс: <span id="userBalance">100</span> Stars</div>
 
     <div id="createForm">
-        <div class="form-group">
-            <label>О чём спор?</label>
-            <input type="text" id="betTitle" placeholder="Кто выиграет этот бой?" />
-        </div>
-
-        <div class="form-group">
-            <label>Сумма ставки (Stars)</label>
-            <input type="number" id="betAmount" placeholder="10" min="1" step="1" />
-        </div>
-
-        <div class="form-group">
-            <label>Участники</label>
-            <input type="text" id="betOptions" placeholder="Игрок 1, Игрок 2" />
-        </div>
-
-        <div class="form-group">
-            <label>Гарант (необязательно)</label>
-            <input type="text" id="betGuarantor" placeholder="@username" />
-        </div>
-
-        <div class="form-group">
-            <label>Время на спор (минуты)</label>
-            <input type="number" id="betDuration" placeholder="5" min="1" step="1" />
-        </div>
-
+        <div class="form-group"><label>О чём спор?</label><input type="text" id="betTitle" placeholder="Кто выиграет этот бой?" /></div>
+        <div class="form-group"><label>Сумма ставки (Stars)</label><input type="number" id="betAmount" placeholder="10" min="1" step="1" /></div>
+        <div class="form-group"><label>Участники</label><input type="text" id="betOptions" placeholder="Игрок 1, Игрок 2" /></div>
+        <div class="form-group"><label>Гарант (необязательно)</label><input type="text" id="betGuarantor" placeholder="@username" /></div>
+        <div class="form-group"><label>Время на спор (минуты)</label><input type="number" id="betDuration" placeholder="5" min="1" step="1" /></div>
         <button class="btn-primary" id="createBetBtn">🔥 Создать спор</button>
     </div>
 
@@ -331,17 +77,11 @@
     </div>
 
     <div id="linkArea" class="hidden">
-        <div class="link-box-container" id="linkBoxContainer">
+        <div class="link-box-container">
             <div class="label-small">🔗 Ссылка для участников:</div>
-            <div class="link-box" id="linkBox">
-                <input type="text" id="shareLink" readonly />
-                <button id="copyLinkBtn">📋 Копировать</button>
-            </div>
+            <div class="link-box"><input type="text" id="shareLink" readonly /><button id="copyLinkBtn">📋 Копировать</button></div>
             <div class="label-small" id="guarantorLabel" style="display:none;">🛡️ Ссылка для гаранта:</div>
-            <div class="link-box" id="guarantorLinkBox" style="display:none;">
-                <input type="text" id="guarantorLink" readonly />
-                <button id="copyGuarantorLinkBtn">📋 Копировать</button>
-            </div>
+            <div class="link-box" id="guarantorLinkBox" style="display:none;"><input type="text" id="guarantorLink" readonly /><button id="copyGuarantorLinkBtn">📋 Копировать</button></div>
         </div>
         <button class="btn-secondary" id="acceptBetBtn">✅ Принять спор</button>
         <button class="btn-success hidden-btn" id="winBtn1">🏆 Победил Участник 1</button>
@@ -350,16 +90,20 @@
     </div>
 
     <div id="statusBox" class="status-box"></div>
-
     <div class="footer-tip">Создай спор и делись ссылкой с другом</div>
 </div>
-
 <div id="toast" class="toast">Сообщение</div>
 
 <script>
-    <!-- force rebuild -->
     // ===== API URL (pythonanywhere) =====
     const API_URL = 'https://Xtrokks.pythonanywhere.com';
+
+    // ===== УНИКАЛЬНЫЙ ID ПОЛЬЗОВАТЕЛЯ =====
+    let currentUserId = localStorage.getItem('userId');
+    if (!currentUserId) {
+        currentUserId = 'user_' + Math.random().toString(36).slice(2, 8);
+        localStorage.setItem('userId', currentUserId);
+    }
 
     let mockBalance = 100;
     let currentBet = null;
@@ -422,13 +166,9 @@
         elements.previewAmount.textContent = bet.amount + ' Stars';
 
         let playersStatus = bet.options.join(' vs ');
-        if (bet.participant2) {
-            playersStatus = `${bet.options[0]} ✅ vs ${bet.options[1]} ✅`;
-        } else if (bet.creator === 'Вы' && bet.status === 'waiting') {
-            playersStatus = `${bet.options[0]} ✅ vs ${bet.options[1]} ⏳ (ждём)`;
-        } else if (bet.creator !== 'Вы' && bet.status === 'waiting') {
-            playersStatus = `${bet.options[0]} ⏳ vs ${bet.options[1]} ✅`;
-        }
+        if (bet.participant2) playersStatus = `${bet.options[0]} ✅ vs ${bet.options[1]} ✅`;
+        else if (bet.creator_id === currentUserId && bet.status === 'waiting') playersStatus = `${bet.options[0]} ✅ vs ${bet.options[1]} ⏳ (ждём)`;
+        else if (bet.creator_id !== currentUserId && bet.status === 'waiting') playersStatus = `${bet.options[0]} ⏳ vs ${bet.options[1]} ✅`;
         elements.previewPlayers.textContent = playersStatus;
 
         elements.previewGuarantor.textContent = bet.guarantor || 'Не указан';
@@ -436,7 +176,6 @@
         elements.preview.classList.remove('hidden');
         elements.linkArea.classList.remove('hidden');
 
-        // Ссылки
         elements.shareLink.value = bet.shareLink;
         if (bet.guarantor) {
             const guarantorLink = `https://xtroksis.github.io/spor-bot/?start=${bet.id}&role=guarantor`;
@@ -450,15 +189,12 @@
 
         elements.createForm.classList.add('hidden');
 
-        // Роль пользователя
         const urlParams = new URLSearchParams(window.location.search);
         const role = urlParams.get('role');
         const isGuarantor = role === 'guarantor';
-        const isCreator = bet.creator === 'Вы';
+        const isCreator = bet.creator_id === currentUserId;
 
-        // ===== КНОПКИ В ЗАВИСИМОСТИ ОТ СТАТУСА И РОЛИ =====
         if (bet.status === 'waiting') {
-            // Кнопка "Принять" — ТОЛЬКО если пользователь НЕ создатель
             if (isCreator) {
                 elements.acceptBetBtn.style.display = 'none';
                 showStatus('👤 Вы создатель спора. Отправьте ссылку другу.', 'info');
@@ -474,16 +210,11 @@
         } else if (bet.status === 'active') {
             elements.acceptBetBtn.style.display = 'none';
             elements.cancelBtn.style.display = 'block';
-
-            // Кто может завершить спор?
             const canFinish = isGuarantor || (!bet.guarantor && (isCreator || bet.participant2 === 'Друг'));
-
             if (canFinish) {
                 elements.winBtn1.classList.remove('hidden-btn');
                 elements.winBtn2.classList.remove('hidden-btn');
-                if (isGuarantor) {
-                    showStatus('🛡️ Вы гарант. Выберите победителя!', 'success');
-                }
+                if (isGuarantor) showStatus('🛡️ Вы гарант. Выберите победителя!', 'success');
             } else {
                 elements.winBtn1.classList.add('hidden-btn');
                 elements.winBtn2.classList.add('hidden-btn');
@@ -553,14 +284,10 @@
     if (betIdFromUrl) {
         document.getElementById('createForm').classList.add('hidden');
         showStatus('⏳ Загрузка спора...', 'info');
-
         fetch(`${API_URL}/get_bet/${betIdFromUrl}`)
             .then(r => r.json())
             .then(bet => {
-                if (bet.error) {
-                    showStatus('❌ Спор не найден или уже завершён.', 'error');
-                    return;
-                }
+                if (bet.error) { showStatus('❌ Спор не найден или уже завершён.', 'error'); return; }
                 currentBet = bet;
                 currentBet.shareLink = window.location.href;
                 renderBet(currentBet);
@@ -580,14 +307,8 @@
         const guarantor = elements.guarantor.value.trim() || null;
         const duration = parseInt(elements.duration.value) || 5;
 
-        if (!title || amount < 1 || options.length < 2) {
-            showToast('⚠️ Заполни все поля корректно.');
-            return;
-        }
-        if (amount > mockBalance) {
-            showToast('⚠️ Недостаточно Stars!');
-            return;
-        }
+        if (!title || amount < 1 || options.length < 2) { showToast('⚠️ Заполни все поля корректно.'); return; }
+        if (amount > mockBalance) { showToast('⚠️ Недостаточно Stars!'); return; }
 
         mockBalance -= amount;
         updateBalance();
@@ -595,7 +316,7 @@
         fetch(`${API_URL}/create_bet`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, amount, options, guarantor, duration, creator: 'Вы' })
+            body: JSON.stringify({ title, amount, options, guarantor, duration, creator_id: currentUserId })
         })
         .then(r => r.json())
         .then(data => {
@@ -603,13 +324,9 @@
             const shareLink = `https://xtroksis.github.io/spor-bot/?start=${betId}`;
             currentBet = {
                 id: betId,
-                title,
-                amount,
-                options,
-                guarantor,
-                duration,
+                title, amount, options, guarantor, duration,
                 status: 'waiting',
-                creator: 'Вы',
+                creator_id: currentUserId,
                 participant2: null,
                 shareLink: shareLink
             };
@@ -629,7 +346,6 @@
         input.select();
         navigator.clipboard?.writeText(input.value).then(() => showToast('📋 Ссылка скопирована!'));
     });
-
     elements.copyGuarantorLinkBtn.addEventListener('click', function() {
         const input = elements.guarantorLink;
         input.select();
@@ -638,19 +354,10 @@
 
     // ===== ПРИНЯТИЕ СПОРА =====
     elements.acceptBetBtn.addEventListener('click', function() {
-        if (!currentBet || currentBet.status !== 'waiting') {
-            showToast('⚠️ Спор уже не активен.');
-            return;
-        }
-        // Запрещаем создателю принимать свой спор
-        if (currentBet.creator === 'Вы') {
-            showToast('⚠️ Вы создатель, не можете принять свой спор!');
-            return;
-        }
-        if (currentBet.amount > mockBalance) {
-            showToast('⚠️ Недостаточно Stars для принятия!');
-            return;
-        }
+        if (!currentBet || currentBet.status !== 'waiting') { showToast('⚠️ Спор уже не активен.'); return; }
+        if (currentBet.creator_id === currentUserId) { showToast('⚠️ Вы создатель, не можете принять свой спор!'); return; }
+        if (currentBet.amount > mockBalance) { showToast('⚠️ Недостаточно Stars для принятия!'); return; }
+
         mockBalance -= currentBet.amount;
         updateBalance();
 
@@ -700,9 +407,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: currentBet.id, winner: winner })
         })
-        .then(() => {
-            finishBet(winner);
-        })
+        .then(() => finishBet(winner))
         .catch(err => {
             showToast('❌ Ошибка завершения спора.', 'error');
             console.error(err);

@@ -338,7 +338,7 @@
 <div id="toast" class="toast">Сообщение</div>
 
 <script>
-    // ===== API URL (пока локальный) =====
+    // ===== API URL (локальный сервер) =====
     const API_URL = 'http://127.0.0.1:5000';
 
     let mockBalance = 100;
@@ -482,12 +482,14 @@
         showToast(`🏆 ${winner} выиграл ${winAmount} Stars!`);
     }
 
-    // ===== ОБРАБОТКА ССЫЛКИ С ID СПОРА =====
+    // ===== ОБРАБОТКА ССЫЛКИ С ID СПОРА (ЗАПРОС К СЕРВЕРУ) =====
     const urlParams = new URLSearchParams(window.location.search);
     const betIdFromUrl = urlParams.get('start');
 
     if (betIdFromUrl) {
-        // Загружаем спор с сервера
+        document.getElementById('createForm').classList.add('hidden');
+        showStatus('⏳ Загрузка спора...', 'info');
+
         fetch(`${API_URL}/get_bet/${betIdFromUrl}`)
             .then(r => r.json())
             .then(bet => {
@@ -531,18 +533,10 @@
         mockBalance -= amount;
         updateBalance();
 
-        // Отправляем на сервер
         fetch(`${API_URL}/create_bet`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                title,
-                amount,
-                options,
-                guarantor,
-                duration,
-                creator: 'Вы'
-            })
+            body: JSON.stringify({ title, amount, options, guarantor, duration, creator: 'Вы' })
         })
         .then(r => r.json())
         .then(data => {
@@ -589,10 +583,7 @@
         fetch(`${API_URL}/accept_bet`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                id: currentBet.id,
-                participant2: 'Друг'
-            })
+            body: JSON.stringify({ id: currentBet.id, participant2: 'Друг' })
         })
         .then(r => r.json())
         .then(() => {
@@ -630,10 +621,7 @@
         fetch(`${API_URL}/finish_bet`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                id: currentBet.id,
-                winner: winner
-            })
+            body: JSON.stringify({ id: currentBet.id, winner: winner })
         })
         .then(() => {
             finishBet(winner);

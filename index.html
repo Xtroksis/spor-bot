@@ -320,6 +320,7 @@
         })
         .then(r => r.json())
         .then(data => {
+            console.log('Ответ сервера:', data); 
             const betId = data.id;
             const shareLink = `https://xtroksis.github.io/spor-bot/?start=${betId}`;
             currentBet = {

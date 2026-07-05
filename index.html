@@ -213,39 +213,6 @@
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
-        .link-box {
-            background: #0e1625;
-            border-radius: 14px;
-            padding: 12px 16px;
-            margin-top: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border: 1px dashed #2a3b5a;
-        }
-        .link-box input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: #b0c7e7;
-            font-size: 14px;
-            outline: none;
-            padding: 4px 0;
-        }
-        .link-box button {
-            background: #2a3b5a;
-            border: none;
-            color: #fff;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-        .link-box button:hover {
-            background: #3a4b6a;
-        }
         .footer-tip {
             margin-top: 20px;
             font-size: 12px;
@@ -379,7 +346,7 @@
         <button class="btn-secondary" id="acceptBetBtn">✅ Принять спор</button>
         <button class="btn-success hidden-btn" id="winBtn1">🏆 Победил Участник 1</button>
         <button class="btn-success hidden-btn" id="winBtn2">🏆 Победил Участник 2</button>
-        <button class="btn-danger" id="cancelBetBtn">❌ Отменить спор</button>
+        <button class="btn-danger" id="cancelBtn">❌ Отменить спор</button>
     </div>
 
     <div id="statusBox" class="status-box"></div>
@@ -422,7 +389,7 @@
         acceptBetBtn: document.getElementById('acceptBetBtn'),
         winBtn1: document.getElementById('winBtn1'),
         winBtn2: document.getElementById('winBtn2'),
-        cancelBtn: document.getElementById('cancelBetBtn'),
+        cancelBtn: document.getElementById('cancelBtn'),
         statusBox: document.getElementById('statusBox'),
         balanceDisplay: document.getElementById('userBalance'),
         toast: document.getElementById('toast'),
@@ -469,7 +436,7 @@
         elements.preview.classList.remove('hidden');
         elements.linkArea.classList.remove('hidden');
 
-        // Показываем ссылки
+        // Ссылки
         elements.shareLink.value = bet.shareLink;
         if (bet.guarantor) {
             const guarantorLink = `https://xtroksis.github.io/spor-bot/?start=${bet.id}&role=guarantor`;
@@ -483,27 +450,33 @@
 
         elements.createForm.classList.add('hidden');
 
-        // Определяем роль пользователя
+        // Роль пользователя
         const urlParams = new URLSearchParams(window.location.search);
         const role = urlParams.get('role');
         const isGuarantor = role === 'guarantor';
+        const isCreator = bet.creator === 'Вы';
 
+        // ===== КНОПКИ В ЗАВИСИМОСТИ ОТ СТАТУСА И РОЛИ =====
         if (bet.status === 'waiting') {
-            elements.acceptBetBtn.style.display = 'block';
-            elements.acceptBetBtn.disabled = false;
+            // Кнопка "Принять" — ТОЛЬКО если пользователь НЕ создатель
+            if (isCreator) {
+                elements.acceptBetBtn.style.display = 'none';
+                showStatus('👤 Вы создатель спора. Отправьте ссылку другу.', 'info');
+            } else {
+                elements.acceptBetBtn.style.display = 'block';
+                elements.acceptBetBtn.disabled = false;
+                elements.acceptBetBtn.textContent = '✅ Принять спор';
+                showStatus('📩 Вас вызвали на спор! Примите вызов.', 'info');
+            }
             elements.winBtn1.classList.add('hidden-btn');
             elements.winBtn2.classList.add('hidden-btn');
             elements.cancelBtn.style.display = 'block';
-            if (isGuarantor) {
-                elements.acceptBetBtn.style.display = 'none';
-                showStatus('🛡️ Вы гарант. Дождитесь, пока участники примут спор.', 'info');
-            }
         } else if (bet.status === 'active') {
             elements.acceptBetBtn.style.display = 'none';
             elements.cancelBtn.style.display = 'block';
 
             // Кто может завершить спор?
-            const canFinish = isGuarantor || (!bet.guarantor && (bet.creator === 'Вы' || bet.participant2 === 'Друг'));
+            const canFinish = isGuarantor || (!bet.guarantor && (isCreator || bet.participant2 === 'Друг'));
 
             if (canFinish) {
                 elements.winBtn1.classList.remove('hidden-btn');
@@ -514,7 +487,7 @@
             } else {
                 elements.winBtn1.classList.add('hidden-btn');
                 elements.winBtn2.classList.add('hidden-btn');
-                showStatus('⏳ Ожидаем решения гаранта...', 'info');
+                showStatus('⏳ Ожидаем решения...', 'info');
             }
         } else if (bet.status === 'finished') {
             elements.acceptBetBtn.style.display = 'none';
@@ -573,7 +546,7 @@
         showToast(`🏆 ${winner} выиграл ${winAmount} Stars!`);
     }
 
-    // ===== ОБРАБОТКА ССЫЛКИ С ID СПОРА (ЗАПРОС К СЕРВЕРУ) =====
+    // ===== ОБРАБОТКА ССЫЛКИ =====
     const urlParams = new URLSearchParams(window.location.search);
     const betIdFromUrl = urlParams.get('start');
 
@@ -591,11 +564,6 @@
                 currentBet = bet;
                 currentBet.shareLink = window.location.href;
                 renderBet(currentBet);
-                elements.acceptBetBtn.textContent = '✅ Принять спор';
-                elements.acceptBetBtn.disabled = false;
-                elements.winBtn1.classList.add('hidden-btn');
-                elements.winBtn2.classList.add('hidden-btn');
-                showStatus('📩 Вас вызвали на спор! Примите вызов.', 'info');
             })
             .catch(err => {
                 showStatus('❌ Ошибка загрузки спора. Проверьте сервер.', 'error');
@@ -646,7 +614,6 @@
                 shareLink: shareLink
             };
             renderBet(currentBet);
-            // Добавляем параметр в URL для сохранения состояния
             window.history.replaceState(null, '', `?start=${betId}`);
             showToast('✅ Спор создан!');
         })
@@ -671,7 +638,15 @@
 
     // ===== ПРИНЯТИЕ СПОРА =====
     elements.acceptBetBtn.addEventListener('click', function() {
-        if (!currentBet || currentBet.status !== 'waiting') return;
+        if (!currentBet || currentBet.status !== 'waiting') {
+            showToast('⚠️ Спор уже не активен.');
+            return;
+        }
+        // Запрещаем создателю принимать свой спор
+        if (currentBet.creator === 'Вы') {
+            showToast('⚠️ Вы создатель, не можете принять свой спор!');
+            return;
+        }
         if (currentBet.amount > mockBalance) {
             showToast('⚠️ Недостаточно Stars для принятия!');
             return;
@@ -690,9 +665,7 @@
             currentBet.participant2 = 'Друг';
             elements.previewStatus.textContent = '⚔️ Идёт';
             elements.acceptBetBtn.style.display = 'none';
-            // Показываем кнопки для участников, если нет гаранта
-            const urlParams = new URLSearchParams(window.location.search);
-            const role = urlParams.get('role');
+            const role = new URLSearchParams(window.location.search).get('role');
             if (!currentBet.guarantor || role === 'guarantor') {
                 elements.winBtn1.classList.remove('hidden-btn');
                 elements.winBtn2.classList.remove('hidden-btn');

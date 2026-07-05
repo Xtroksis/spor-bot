@@ -394,37 +394,48 @@
         return 'bet_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
     }
 
-    function renderBet(bet) {
-        elements.previewTitle.textContent = bet.title;
-        elements.previewAmount.textContent = bet.amount + ' Stars';
-        elements.previewPlayers.textContent = bet.options.join(' vs ');
-        elements.previewGuarantor.textContent = bet.guarantor || 'Не указан';
-        elements.previewStatus.textContent = bet.status === 'waiting' ? '⏳ Ожидает' : '⚔️ Активен';
-        elements.preview.classList.remove('hidden');
-        elements.linkArea.classList.remove('hidden');
-        elements.shareLink.value = bet.shareLink;
-        elements.createForm.classList.add('hidden');
+function renderBet(bet) {
+    elements.previewTitle.textContent = bet.title;
+    elements.previewAmount.textContent = bet.amount + ' Stars';
 
-        // Показываем кнопки в зависимости от статуса
-        if (bet.status === 'waiting') {
-            elements.acceptBtn.style.display = 'block';
-            elements.acceptBtn.disabled = false;
-            elements.winBtn1.classList.add('hidden-btn');
-            elements.winBtn2.classList.add('hidden-btn');
-            elements.cancelBtn.style.display = 'block';
-        } else if (bet.status === 'active') {
-            elements.acceptBtn.style.display = 'none';
-            elements.winBtn1.classList.remove('hidden-btn');
-            elements.winBtn2.classList.remove('hidden-btn');
-            elements.cancelBtn.style.display = 'block';
-        } else if (bet.status === 'finished') {
-            elements.acceptBtn.style.display = 'none';
-            elements.winBtn1.classList.add('hidden-btn');
-            elements.winBtn2.classList.add('hidden-btn');
-            elements.cancelBtn.style.display = 'none';
-        }
-        if (bet.status === 'active') startTimer(bet);
+    // ===== ИНДИКАТОР УЧАСТНИКОВ =====
+    let playersStatus = bet.options.join(' vs ');
+    if (bet.participant2) {
+        playersStatus = `${bet.options[0]} ✅ vs ${bet.options[1]} ✅`;
+    } else if (bet.creator === 'Вы' && bet.status === 'waiting') {
+        playersStatus = `${bet.options[0]} ✅ vs ${bet.options[1]} ⏳ (ждём)`;
+    } else if (bet.creator !== 'Вы' && bet.status === 'waiting') {
+        playersStatus = `${bet.options[0]} ⏳ vs ${bet.options[1]} ✅`;
     }
+    elements.previewPlayers.textContent = playersStatus;
+
+    elements.previewGuarantor.textContent = bet.guarantor || 'Не указан';
+    elements.previewStatus.textContent = bet.status === 'waiting' ? '⏳ Ожидает' : '⚔️ Активен';
+    elements.preview.classList.remove('hidden');
+    elements.linkArea.classList.remove('hidden');
+    elements.shareLink.value = bet.shareLink;
+    elements.createForm.classList.add('hidden');
+
+    // ===== КНОПКИ ПО СТАТУСУ =====
+    if (bet.status === 'waiting') {
+        elements.acceptBtn.style.display = 'block';
+        elements.acceptBtn.disabled = false;
+        elements.winBtn1.classList.add('hidden-btn');
+        elements.winBtn2.classList.add('hidden-btn');
+        elements.cancelBtn.style.display = 'block';
+    } else if (bet.status === 'active') {
+        elements.acceptBtn.style.display = 'none';
+        elements.winBtn1.classList.remove('hidden-btn');
+        elements.winBtn2.classList.remove('hidden-btn');
+        elements.cancelBtn.style.display = 'block';
+    } else if (bet.status === 'finished') {
+        elements.acceptBtn.style.display = 'none';
+        elements.winBtn1.classList.add('hidden-btn');
+        elements.winBtn2.classList.add('hidden-btn');
+        elements.cancelBtn.style.display = 'none';
+    }
+    if (bet.status === 'active') startTimer(bet);
+}
 
     function startTimer(bet) {
         if (timerInterval) clearInterval(timerInterval);

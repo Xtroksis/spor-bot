@@ -338,6 +338,9 @@
 <div id="toast" class="toast">Сообщение</div>
 
 <script>
+    // ===== API URL (пока локальный) =====
+    const API_URL = 'http://127.0.0.1:5000';
+
     let mockBalance = 100;
     let currentBet = null;
     let timerInterval = null;
@@ -388,10 +391,6 @@
         box.className = 'status-box show';
         const colors = { success: '#4caf50', error: '#f44336', info: '#f7931e' };
         box.style.borderLeftColor = colors[type] || colors.info;
-    }
-
-    function generateBetId() {
-        return 'bet_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
     }
 
     function renderBet(bet) {
@@ -483,32 +482,35 @@
         showToast(`🏆 ${winner} выиграл ${winAmount} Stars!`);
     }
 
-    // ===== ОБРАБОТКА ССЫЛКИ =====
+    // ===== ОБРАБОТКА ССЫЛКИ С ID СПОРА =====
     const urlParams = new URLSearchParams(window.location.search);
     const betIdFromUrl = urlParams.get('start');
 
     if (betIdFromUrl) {
-        document.getElementById('createForm').classList.add('hidden');
-        currentBet = {
-            id: betIdFromUrl,
-            title: 'Кто быстрее съест?',
-            amount: 10,
-            options: ['Леха', 'Вася'],
-            guarantor: null,
-            duration: 5,
-            status: 'waiting',
-            creator: 'Создатель',
-            shareLink: window.location.href
-        };
-        renderBet(currentBet);
-        document.getElementById('acceptBetBtn').textContent = '✅ Принять спор';
-        document.getElementById('acceptBetBtn').disabled = false;
-        document.getElementById('winBtn1').classList.add('hidden-btn');
-        document.getElementById('winBtn2').classList.add('hidden-btn');
-        showStatus('📩 Вас вызвали на спор! Примите вызов.', 'info');
+        // Загружаем спор с сервера
+        fetch(`${API_URL}/get_bet/${betIdFromUrl}`)
+            .then(r => r.json())
+            .then(bet => {
+                if (bet.error) {
+                    showStatus('❌ Спор не найден или уже завершён.', 'error');
+                    return;
+                }
+                currentBet = bet;
+                currentBet.shareLink = window.location.href;
+                renderBet(currentBet);
+                document.getElementById('acceptBetBtn').textContent = '✅ Принять спор';
+                document.getElementById('acceptBetBtn').disabled = false;
+                document.getElementById('winBtn1').classList.add('hidden-btn');
+                document.getElementById('winBtn2').classList.add('hidden-btn');
+                showStatus('📩 Вас вызвали на спор! Примите вызов.', 'info');
+            })
+            .catch(err => {
+                showStatus('❌ Ошибка загрузки спора. Проверьте сервер.', 'error');
+                console.error(err);
+            });
     }
 
-    // Создание спора
+    // ===== СОЗДАНИЕ СПОРА =====
     elements.createBtn.addEventListener('click', function() {
         const title = elements.title.value.trim();
         const amount = parseInt(elements.amount.value);
@@ -529,30 +531,52 @@
         mockBalance -= amount;
         updateBalance();
 
-        const betId = generateBetId();
-        currentBet = {
-            id: betId,
-            title,
-            amount,
-            options,
-            guarantor,
-            duration,
-            status: 'waiting',
-            creator: 'Вы',
-            shareLink: `https://xtroksis.github.io/spor-bot/?start=${betId}`
-        };
-        renderBet(currentBet);
-        showToast('✅ Спор создан!');
+        // Отправляем на сервер
+        fetch(`${API_URL}/create_bet`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title,
+                amount,
+                options,
+                guarantor,
+                duration,
+                creator: 'Вы'
+            })
+        })
+        .then(r => r.json())
+        .then(data => {
+            const betId = data.id;
+            const shareLink = `https://xtroksis.github.io/spor-bot/?start=${betId}`;
+            currentBet = {
+                id: betId,
+                title,
+                amount,
+                options,
+                guarantor,
+                duration,
+                status: 'waiting',
+                creator: 'Вы',
+                participant2: null,
+                shareLink: shareLink
+            };
+            renderBet(currentBet);
+            showToast('✅ Спор создан!');
+        })
+        .catch(err => {
+            showToast('❌ Ошибка создания спора. Проверьте сервер.', 'error');
+            console.error(err);
+        });
     });
 
-    // Копирование ссылки
+    // ===== КОПИРОВАНИЕ ССЫЛКИ =====
     elements.copyBtn.addEventListener('click', function() {
         const input = elements.shareLink;
         input.select();
         navigator.clipboard?.writeText(input.value).then(() => showToast('📋 Ссылка скопирована!'));
     });
 
-    // Принятие спора
+    // ===== ПРИНЯТИЕ СПОРА =====
     elements.acceptBtn.addEventListener('click', function() {
         if (!currentBet || currentBet.status !== 'waiting') return;
         if (currentBet.amount > mockBalance) {
@@ -561,32 +585,66 @@
         }
         mockBalance -= currentBet.amount;
         updateBalance();
-        currentBet.status = 'active';
-        currentBet.participant2 = 'Друг';
-        elements.previewStatus.textContent = '⚔️ Идёт';
-        elements.acceptBtn.style.display = 'none';
-        elements.winBtn1.classList.remove('hidden-btn');
-        elements.winBtn2.classList.remove('hidden-btn');
-        showStatus(`🔥 Спор принят! Банк: ${currentBet.amount * 2} Stars.`, 'success');
-        showToast('✅ Спор принят!');
-        startTimer(currentBet);
+
+        fetch(`${API_URL}/accept_bet`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: currentBet.id,
+                participant2: 'Друг'
+            })
+        })
+        .then(r => r.json())
+        .then(() => {
+            currentBet.status = 'active';
+            currentBet.participant2 = 'Друг';
+            elements.previewStatus.textContent = '⚔️ Идёт';
+            elements.acceptBtn.style.display = 'none';
+            elements.winBtn1.classList.remove('hidden-btn');
+            elements.winBtn2.classList.remove('hidden-btn');
+            showStatus(`🔥 Спор принят! Банк: ${currentBet.amount * 2} Stars.`, 'success');
+            showToast('✅ Спор принят!');
+            startTimer(currentBet);
+        })
+        .catch(err => {
+            showToast('❌ Ошибка принятия спора.', 'error');
+            console.error(err);
+        });
     });
 
-    // Кнопки "Победил Участник 1/2"
+    // ===== КНОПКИ "ПОБЕДИЛ" =====
     elements.winBtn1.addEventListener('click', () => {
         if (currentBet && currentBet.status === 'active') {
             const winner = currentBet.options[0];
-            finishBet(winner);
+            finishBetLocal(winner);
         }
     });
     elements.winBtn2.addEventListener('click', () => {
         if (currentBet && currentBet.status === 'active') {
             const winner = currentBet.options[1];
-            finishBet(winner);
+            finishBetLocal(winner);
         }
     });
 
-    // Отмена спора (возврат Stars)
+    function finishBetLocal(winner) {
+        fetch(`${API_URL}/finish_bet`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: currentBet.id,
+                winner: winner
+            })
+        })
+        .then(() => {
+            finishBet(winner);
+        })
+        .catch(err => {
+            showToast('❌ Ошибка завершения спора.', 'error');
+            console.error(err);
+        });
+    }
+
+    // ===== ОТМЕНА СПОРА =====
     elements.cancelBtn.addEventListener('click', function() {
         if (!currentBet || currentBet.status === 'finished') return;
         clearInterval(timerInterval);
